@@ -1,5 +1,5 @@
 from django.db import models
-from crypto_repo.common.models import AbstractTicker, AbstractCoin, AbstractOrderBook
+from common.models import AbstractTicker, AbstractCoin, AbstractOrderBook
 # Create your models here.
 
 
