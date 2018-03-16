@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 
-class Coin(models.Model):
+class AbstractCoin(models.Model):
     verbose = models.CharField(null=True, max_length=100)
     tkr = models.CharField(primary_key=True, max_length=100)
 
@@ -11,7 +11,7 @@ class Coin(models.Model):
         abstract = True
 
 
-class Ticker(models.Model):
+class AbstractTicker(models.Model):
     class Meta:
         abstract = True
         indexes = [
