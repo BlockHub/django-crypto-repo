@@ -45,8 +45,8 @@ class ObserverBot(AbstractObserverBot):
         if new_coins:
             Coin.objects.bulk_create(new_coins)
 
-    def __get_orderbook(self, market, time):
-        res = self.api.ticker(market)
+    def __get_orderbook(self, coin, time):
+        res = self.api.ticker(coin.market_name)
         obs = []
 
         for i in res['buy']:
@@ -56,6 +56,7 @@ class ObserverBot(AbstractObserverBot):
                     quantity=i['Quantity'],
                     rate=i['rate'],
                     time=time,
+                    coin=coin,
                 )
             )
 
@@ -65,14 +66,15 @@ class ObserverBot(AbstractObserverBot):
                     buy=False,
                     quantity=x['Quantity'],
                     rate=x['rate'],
-                    time=time
+                    time=time,
+                    coin=coin,
                 )
             )
 
     def get_market_orderbooks(self, coins, time):
         obs = []
         for coin in coins:
-            obs.append(self.__get_orderbook(coin.market_name, time))
+            obs.append(self.__get_orderbook(coin, time))
 
     def run(self):
         coins = Coin.objects.all()

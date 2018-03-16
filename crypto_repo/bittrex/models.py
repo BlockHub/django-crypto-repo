@@ -1,5 +1,5 @@
 from django.db import models
-from crypto_repo.common.models import AbstractTicker, AbstractCoin
+from crypto_repo.common.models import AbstractTicker, AbstractCoin, AbstractOrderBook
 # Create your models here.
 
 
@@ -15,8 +15,6 @@ class Ticker(AbstractTicker):
     pass
 
 
-class OrderBook(models.Model):
-    buy = models.BooleanField()
-    quantity = models.FloatField()
-    rate = models.FloatField()
-    time = models.DateTimeField()
+class OrderBook(AbstractOrderBook):
+    coin = models.ForeignKey(Coin, on_delete=models.CASCADE)
+

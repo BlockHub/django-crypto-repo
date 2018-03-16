@@ -18,8 +18,6 @@ class AbstractTicker(models.Model):
             models.Index(fields=['time']),
             ]
 
-    tkr = models.ForeignKey(to=Coin, on_delete=models.CASCADE, related_name='coin')
-
     bid_btc = models.FloatField(null=True)
     ask_btc = models.FloatField(null=True)
     bid_usd = models.FloatField(null=True)
@@ -31,6 +29,12 @@ class AbstractTicker(models.Model):
     volume = models.FloatField(null=True)
     time = models.DateTimeField(auto_now=True)
 
+
+class AbstractOrderBook(models.Model):
+    buy = models.BooleanField()
+    quantity = models.FloatField()
+    rate = models.FloatField()
+    time = models.DateTimeField()
 
 
 
