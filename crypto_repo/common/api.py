@@ -1,0 +1,12 @@
+from crypto_repo.common.exceptions import NotImplemented
+
+not_implemented = NotImplemented('Method has not been implemented')
+
+
+class api:
+    def tickers(self):
+        raise not_implemented
+
+    def get_markets(self):
+        raise not_implemented
+
