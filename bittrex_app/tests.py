@@ -46,7 +46,6 @@ class TestBot(TestCase):
 
     def test_run(self):
         from bittrex_app.models import Market
-        import datetime
         bot = ObserverBot()
 
         bot.create_markets()
