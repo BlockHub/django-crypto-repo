@@ -1,4 +1,4 @@
-from crypto_repo.common.exceptions import NotImplemented
+from common.exceptions import NotImplemented
 
 not_implemented = NotImplemented('Method has not been implemented')
 

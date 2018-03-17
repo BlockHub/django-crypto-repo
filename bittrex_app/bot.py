@@ -1,12 +1,13 @@
-from crypto_repo.common.bot import AbstractObserverBot
-from crypto_repo.bittrex.models import Coin, OrderBook
-from crypto_repo.bittrex.api import BittrexApi
+from common.bot import AbstractObserverBot
+from bittrex_app.models import Market, OrderBook
+from bittrex_app.api import BittrexApi
+import asyncio
 import datetime
 
 
 class ObserverBot(AbstractObserverBot):
 
-    def __init__(self, key, secret):
+    def __init__(self, key=None, secret=None):
         self.api = BittrexApi(key=key, secret=secret)
 
     # ran the first time when setting up the bot
@@ -14,8 +15,8 @@ class ObserverBot(AbstractObserverBot):
         coins = []
         for i in self.api.get_markets():
             coins.append(
-                Coin(
-                    market_name=i['MarketName'],
+                Market(
+                    market=i['MarketName'],
                     is_active=i['IsActive'],
                     base_currency=i['BaseCurrency'],
                     min_trade_size=i['MinTradeSize'],
@@ -23,17 +24,17 @@ class ObserverBot(AbstractObserverBot):
                     verbose=i['MarketCurrencyLong'],
                 )
             )
-        Coin.objects.bulk_create(coins)
+        Market.objects.bulk_create(coins)
         return coins
 
     def update_markets(self):
-        coins = Coin.objects.all()
+        coins = Market.objects.all()
         new_coins = []
         for i in self.api.get_markets():
-            if coins.filter(market_name=i['MarketName']).exists():
+            if not coins.filter(market=i['MarketName']).exists():
                 new_coins.append(
-                    Coin(
-                        market_name=i['MarketName'],
+                    Market(
+                        market=i['MarketName'],
                         is_active=i['IsActive'],
                         base_currency=i['BaseCurrency'],
                         min_trade_size=i['MinTradeSize'],
@@ -43,10 +44,10 @@ class ObserverBot(AbstractObserverBot):
                 )
 
         if new_coins:
-            Coin.objects.bulk_create(new_coins)
+            Market.objects.bulk_create(new_coins)
 
     def __get_orderbook(self, coin, time):
-        res = self.api.ticker(coin.market_name)
+        res = self.api.ticker(coin.market)
         obs = []
 
         for i in res['buy']:
@@ -54,7 +55,7 @@ class ObserverBot(AbstractObserverBot):
                 OrderBook(
                     buy=True,
                     quantity=i['Quantity'],
-                    rate=i['rate'],
+                    rate=i['Rate'],
                     time=time,
                     coin=coin,
                 )
@@ -65,19 +66,18 @@ class ObserverBot(AbstractObserverBot):
                 OrderBook(
                     buy=False,
                     quantity=x['Quantity'],
-                    rate=x['rate'],
+                    rate=x['Rate'],
                     time=time,
                     coin=coin,
                 )
             )
 
-    def get_market_orderbooks(self, coins, time):
-        obs = []
-        for coin in coins:
-            obs.append(self.__get_orderbook(coin, time))
+    def get_markets_orderbooks(self, coins, time):
+        orderbooks =  [(self.__get_orderbook(coin, time)) for coin in coins]
+        OrderBook.objects.bulk_create(orderbooks)
 
-    def run(self):
-        coins = Coin.objects.all()
+    def run(self, single=False):
+        coins = Market.objects.all()
 
         # basic startup procedure
         if coins.count() == 0:
@@ -85,11 +85,14 @@ class ObserverBot(AbstractObserverBot):
 
         else:
             self.update_markets()
-            coins = Coin.objects.all()
+            coins = Market.objects.all()
 
         while True:
             time = datetime.datetime.now()
-            OrderBook.objects.bulk_create(self.get_market_orderbooks(coins, time))
+            self.get_markets_orderbooks(coins, time)
+            if single:
+                return
+
 
 
 

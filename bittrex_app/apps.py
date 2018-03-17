@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class BittrexConfig(AppConfig):
-    name = 'bittrex'
+    name = 'bittrex_app'

@@ -1,6 +1,6 @@
-from crypto_repo.common.api import AbstractMarketApi
+from common.api import AbstractMarketApi
 from bittrex.bittrex import Bittrex, API_V2_0, API_V1_1, BOTH_ORDERBOOK
-from crypto_repo.common.exceptions import ApiResponseError
+from common.exceptions import ApiResponseError
 
 
 class BittrexApi(AbstractMarketApi):
@@ -28,7 +28,7 @@ class BittrexApi(AbstractMarketApi):
         return self.__api_call(self.v1.get_orderbook, market, BOTH_ORDERBOOK)
 
     def get_markets(self):
-        return self.__api_call(self.v1.get_markets())
+        return self.__api_call(self.v1.get_markets)
 
 
 

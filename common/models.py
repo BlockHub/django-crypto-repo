@@ -3,9 +3,10 @@ from django.db import models
 # Create your models here.
 
 
-class AbstractCoin(models.Model):
+class AbstractMarket(models.Model):
     verbose = models.CharField(null=True, max_length=100)
-    tkr = models.CharField(primary_key=True, max_length=100)
+    tkr = models.CharField(max_length=100)
+    market = models.CharField(max_length=20, primary_key=True)
 
     class Meta:
         abstract = True
@@ -31,6 +32,9 @@ class AbstractTicker(models.Model):
 
 
 class AbstractOrderBook(models.Model):
+    class Meta:
+        abstract = True
+
     buy = models.BooleanField()
     quantity = models.FloatField()
     rate = models.FloatField()
