@@ -14,9 +14,20 @@ class Market(AbstractMarket):
 
 
 class Ticker(AbstractTicker):
-    pass
+    market = models.ForeignKey(Market, on_delete=models.CASCADE)
+    price_change = models.FloatField()
+    w_a_price = models.FloatField()
+    prev_close_price = models.FloatField()
+    last_price = models.FloatField()
+    bid_price = models.FloatField()
+    ask_price = models.FloatField()
+    open_price = models.FloatField()
+    high_price = models.FloatField()
+    low_price = models.FloatField()
+    volume = models.FloatField()
+    trade_count = models.FloatField()
 
 
 class OrderBook(AbstractOrderBook):
-    coin = models.ForeignKey(Market, on_delete=models.CASCADE)
+    market = models.ForeignKey(Market, on_delete=models.CASCADE)
     last_updated = models.IntegerField()

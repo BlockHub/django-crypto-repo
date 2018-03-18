@@ -1,5 +1,5 @@
 from common.bot import AbstractObserverBot
-from binance.models import Market, OrderBook
+from binance.models import Market, OrderBook, Ticker
 from binance.api import BinanceApi
 import datetime
 import time
@@ -71,37 +71,59 @@ class ObserverBot(AbstractObserverBot):
         obs = []
         for ob in res:
             # sometimes a retried api call still failed
-            if not ob['bids']:
+            if not ob['bids'] or not ob['market']:
                 logger.error(ob)
                 continue
 
             for i in ob['bids']:
-                coin = self.coins.get(tkr=ob['tkr'], quote=ob['quote'])
-
                 obs.append(
                     OrderBook(
                         buy=True,
                         quantity=i[1],
                         rate=i[0],
                         time=time,
-                        coin=coin,
+                        market=ob['market'],
                         last_updated=ob['lastUpdateId'],
                     )
                 )
 
             for x in ob['asks']:
-                coin = self.coins.get(tkr=ob['tkr'], quote=ob['quote'])
                 obs.append(
                     OrderBook(
                         buy=False,
                         quantity=x[1],
                         rate=x[0],
                         time=time,
-                        coin=coin,
+                        market=ob['market'],
                         last_updated=ob['lastUpdateId'],
                     )
                 )
         return obs
+
+    def cast_tickers(self, res, time):
+        tks = []
+        for tk in res:
+            if not tk['volume']:
+                logger.error(tk)
+                continue
+            tks.append(
+                Ticker(
+                    price_change=tk['priceChange'],
+                    w_a_price=tk['weightedAvgPrice'],
+                    prev_close_price=tk['prevClosePrice'],
+                    last_price=tk['lastPrice'],
+                    bid_price=tk['bidPrice'],
+                    ask_price=tk['askPrice'],
+                    open_price=tk['openPrice'],
+                    high_price=tk['highPrice'],
+                    low_price=tk['lowPrice'],
+                    volume=tk['volume'],
+                    trade_count=tk['count'],
+                    time=time,
+                    market=tk['market'],
+                )
+            )
+        return tks
 
     def refresh_markets_orderbooks(self, time):
         orderbooks_json = self.api.orderbooks(self.coins)
@@ -109,6 +131,13 @@ class ObserverBot(AbstractObserverBot):
         OrderBook.objects.bulk_create(orderbooks)
         # used for testing
         return orderbooks
+
+    def refresh_tickers(self, time):
+        tks_json = self.api.tickers(self.coins)
+        tks = self.cast_tickers(res=tks_json, time=time)
+        Ticker.objects.bulk_create(tks)
+
+        return tks
 
     def run(self, single=False):
         # basic startup procedure
@@ -120,8 +149,9 @@ class ObserverBot(AbstractObserverBot):
         while True:
             start_time = datetime.datetime.now(tz=timezone.utc)
             obs = self.refresh_markets_orderbooks(start_time)
+            tks = self.refresh_tickers(start_time)
             if single:
-                return obs
+                return obs, tks
             else:
                 # in general a refresh run takes 15 s.
                 time.sleep(self.setting['REFRESH_RATE'] - (datetime.datetime.now().second - start_time.second))

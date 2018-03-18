@@ -25,14 +25,34 @@ class BinanceApi(AbstractMarketApi):
         # our loop might return the orderbooks unordered. This way our FK relations are correct.
         if res['bids']:
             res.update({
-                'tkr': market.tkr,
-                'quote': market.quote})
+                'market': market})
         return res
 
     def orderbooks(self, markets):
         tasks = [self.get_orderbook(i) for i in markets]
         obs = self.loop.run_until_complete(asyncio.gather(*tasks))
         return obs
+
+    async def get_ticker(self, market):
+        res = await self.client.get_ticker(symbol=market.market())
+
+        # apparently this endpoint might return a list cointaining one dict
+        if type(res) == list:
+            res = res[0]
+        # a single retry if the api fails, no success param, so we check for a different one
+        if not res['volume']:
+            res = await self.client.get_ticker(symbol=market.market())
+
+        # our loop might return the orderbooks unordered. This way our FK relations are correct.
+        if res['volume']:
+            res.update({
+                'market': market})
+        return res
+
+    def tickers(self, markets):
+        tasks = [self.get_ticker(i) for i in markets]
+        tks = self.loop.run_until_complete(asyncio.gather(*tasks))
+        return tks
 
     def get_markets(self):
         task = [self.client.get_exchange_info()]
