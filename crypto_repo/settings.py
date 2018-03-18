@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     # our apps
     'common',
     'bittrex_app',
+    'binance',
 ]
 
 MIDDLEWARE = [
