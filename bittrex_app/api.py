@@ -32,15 +32,26 @@ class BittrexApi(AbstractMarketApi):
     # def tickers(self, market):
     #     return self.__api_call(self.v1.get_orderbook, market, BOTH_ORDERBOOK)
 
+    async def get_orderbook(self, market):
+        res = await self.v1.get_orderbook(market.market(), BOTH_ORDERBOOK)
+
+        # a single retry if the api fails
+        if not res['success']:
+            res = await self.v1.get_orderbook(market.market(), BOTH_ORDERBOOK)
+
+        # our loop might return the orderbooks unordered. This way our FK relations are correct.
+        if res['result']:
+            res['result'].update({'market': market.market()})
+        return res
+
     def orderbooks(self, markets):
-        tasks = [self.v1.get_orderbook(i.market, BOTH_ORDERBOOK) for i in markets]
-        return self.loop.run_until_complete(asyncio.gather(*tasks))
+        tasks = [self.get_orderbook(i) for i in markets]
+        obs = self.loop.run_until_complete(asyncio.gather(*tasks))
+        return obs
 
     def get_markets(self):
         task = [self.v1.get_markets()]
         return self.loop.run_until_complete(asyncio.gather(*task))[0]
-
-
 
 
 
