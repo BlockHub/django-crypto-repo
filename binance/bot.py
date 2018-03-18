@@ -24,7 +24,6 @@ class ObserverBot(AbstractObserverBot):
                 status = True
             else:
                 status = False
-            print(i['filters'])
             min_trade = i['filters'][1].get('minQty')
 
             coins.append(
