@@ -20,16 +20,8 @@ class AbstractTicker(models.Model):
             models.Index(fields=['time']),
             ]
 
-    bid_btc = models.FloatField(null=True)
-    ask_btc = models.FloatField(null=True)
-    bid_usd = models.FloatField(null=True)
-    ask_usd = models.FloatField(null=True)
-    bid_eur = models.FloatField(null=True)
-    ask_eur = models.FloatField(null=True)
-
     # bittrex api does not support depth a.t.m
-    volume = models.FloatField(null=True)
-    time = models.DateTimeField(auto_now=True)
+    time = models.DateTimeField()
 
 
 class AbstractOrderBook(models.Model):

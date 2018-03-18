@@ -4,7 +4,7 @@ not_implemented = NotImplemented('Method has not been implemented')
 
 
 class AbstractMarketApi:
-    def tickers(self):
+    def tickers(self, markets):
         raise not_implemented
 
     def get_markets(self):
