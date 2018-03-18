@@ -42,8 +42,7 @@ class BittrexApi(AbstractMarketApi):
         # our loop might return the orderbooks unordered. This way our FK relations are correct.
         if res['result']:
             res['result'].update({
-                'tkr': market.tkr,
-                'quote': market.quote
+                'market': market
             })
         return res
 
@@ -56,6 +55,23 @@ class BittrexApi(AbstractMarketApi):
         task = [self.v1.get_markets()]
         return self.loop.run_until_complete(asyncio.gather(*task))[0]
 
+    async def get_ticker(self, market):
+        res = await self.v1.get_ticker(market.market())
 
+        # a single retry if the api fails
+        if not res['success']:
+            res = await self.v1.get_ticker(market.market())
+
+        # our loop might return the orderbooks unordered. This way our FK relations are correct.
+        if res['result']:
+            res['result'].update({
+                'market': market
+            })
+        return res
+
+    def tickers(self, markets):
+        tasks = [self.get_ticker(i) for i in markets]
+        tks = self.loop.run_until_complete(asyncio.gather(*tasks))
+        return tks
 
 

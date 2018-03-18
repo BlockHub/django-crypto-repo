@@ -13,10 +13,13 @@ class Market(AbstractMarket):
 
 
 class Ticker(AbstractTicker):
-    pass
+    market = models.ForeignKey(Market, on_delete=models.CASCADE)
+    bid = models.FloatField()
+    ask = models.FloatField()
+    last = models.FloatField()
 
 
 class OrderBook(AbstractOrderBook):
-    coin = models.ForeignKey(Market, on_delete=models.CASCADE)
+    market = models.ForeignKey(Market, on_delete=models.CASCADE)
 
 
