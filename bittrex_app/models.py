@@ -6,8 +6,10 @@ from common.models import AbstractTicker, AbstractMarket, AbstractOrderBook
 class Market(AbstractMarket):
     # used to get a certain orderbook
     is_active = models.BooleanField(default=True)
-    base_currency = models.CharField(max_length=10)
     min_trade_size = models.FloatField()
+
+    def market(self):
+        return self.base_currency + '-' + self.tkr
 
 
 class Ticker(AbstractTicker):
@@ -16,4 +18,5 @@ class Ticker(AbstractTicker):
 
 class OrderBook(AbstractOrderBook):
     coin = models.ForeignKey(Market, on_delete=models.CASCADE)
+
 
