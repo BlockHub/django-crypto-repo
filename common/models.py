@@ -6,10 +6,11 @@ from django.db import models
 class AbstractMarket(models.Model):
     verbose = models.CharField(null=True, max_length=100)
     tkr = models.CharField(max_length=100)
-    market = models.CharField(max_length=20, primary_key=True)
+    base_currency = models.CharField(max_length=10)
 
     class Meta:
         abstract = True
+        unique_together = ('tkr', 'base_currency')
 
 
 class AbstractTicker(models.Model):
@@ -39,6 +40,7 @@ class AbstractOrderBook(models.Model):
     quantity = models.FloatField()
     rate = models.FloatField()
     time = models.DateTimeField()
+
 
 
 
