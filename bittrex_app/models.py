@@ -9,7 +9,7 @@ class Market(AbstractMarket):
     min_trade_size = models.FloatField()
 
     def market(self):
-        return self.base_currency + '-' + self.tkr
+        return self.quote + '-' + self.tkr
 
 
 class Ticker(AbstractTicker):

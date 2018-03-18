@@ -41,7 +41,10 @@ class BittrexApi(AbstractMarketApi):
 
         # our loop might return the orderbooks unordered. This way our FK relations are correct.
         if res['result']:
-            res['result'].update({'market': market.market()})
+            res['result'].update({
+                'tkr': market.tkr,
+                'quote': market.quote
+            })
         return res
 
     def orderbooks(self, markets):
