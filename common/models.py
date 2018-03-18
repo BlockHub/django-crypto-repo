@@ -6,11 +6,11 @@ from django.db import models
 class AbstractMarket(models.Model):
     verbose = models.CharField(null=True, max_length=100)
     tkr = models.CharField(max_length=100)
-    base_currency = models.CharField(max_length=10)
+    quote = models.CharField(max_length=10)
 
     class Meta:
         abstract = True
-        unique_together = ('tkr', 'base_currency')
+        unique_together = ('tkr', 'quote')
 
 
 class AbstractTicker(models.Model):
