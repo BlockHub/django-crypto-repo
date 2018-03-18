@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'common',
     'bittrex_app',
     'binance',
+    'bitfinex_app',
 ]
 
 MIDDLEWARE = [
@@ -138,4 +139,8 @@ BOTS = {
     'KRAKEN': {
         'REFRESH_RATE': 60,
     },
+    'BITFINEX': {
+        'REFRESH_RATE': 60,
+    },
+
 }
