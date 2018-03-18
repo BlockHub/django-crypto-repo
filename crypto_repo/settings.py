@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    #third party apps
+    'django_extensions',
+
     # our apps
     'common',
     'bittrex_app',
@@ -122,3 +125,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+BOTS = {
+    'BITTREX': {
+        # interval of getting new orderbooks and tickers for all coins (includes time to get info)
+        'REFRESH_RATE': 60,
+    },
+    'BINANCE': {
+        'REFRESH_RATE': 60,
+    },
+    'KRAKEN': {
+        'REFRESH_RATE': 60,
+    },
+}
