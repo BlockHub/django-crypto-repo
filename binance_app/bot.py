@@ -1,6 +1,6 @@
 from common.bot import AbstractObserverBot
-from binance.models import Market, OrderBook, Ticker
-from binance.api import BinanceApi
+from binance_app.models import Market, OrderBook, Ticker, Order
+from binance_app.api import BinanceApi
 import datetime
 import time
 from django.utils import timezone
@@ -66,39 +66,42 @@ class ObserverBot(AbstractObserverBot):
         if new_coins:
             Market.objects.bulk_create(new_coins)
 
-    def cast_orderbooks(self, res,  time):
+    def cast_orderbooks(self, orderbooks,  time):
 
-        obs = []
-        for ob in res:
+        orders = []
+        for orderbook in orderbooks:
             # sometimes a retried api call still failed
-            if not ob['bids'] or not ob['market']:
-                logger.error(ob)
+            if not orderbook['bids'] or not orderbook['market']:
+                logger.error(orderbook)
                 continue
 
-            for i in ob['bids']:
-                obs.append(
-                    OrderBook(
+            ob = OrderBook.objects.create(
+                market=orderbook['market'],
+                last_updated=orderbook['lastUpdateId'],
+                time=time,
+            )
+            ob.save()
+
+            for i in orderbook['bids']:
+                orders.append(
+                    Order(
                         buy=True,
                         quantity=i[1],
                         rate=i[0],
-                        time=time,
-                        market=ob['market'],
-                        last_updated=ob['lastUpdateId'],
+                        orderbook=ob,
                     )
                 )
 
             for x in ob['asks']:
-                obs.append(
-                    OrderBook(
+                orders.append(
+                    Order(
                         buy=False,
-                        quantity=x[1],
-                        rate=x[0],
-                        time=time,
-                        market=ob['market'],
-                        last_updated=ob['lastUpdateId'],
+                        quantity=i[1],
+                        rate=i[0],
+                        orderbook=ob,
                     )
                 )
-        return obs
+        return orders
 
     def cast_tickers(self, res, time):
         tks = []
@@ -127,10 +130,10 @@ class ObserverBot(AbstractObserverBot):
 
     def refresh_markets_orderbooks(self, time):
         orderbooks_json = self.api.orderbooks(self.coins)
-        orderbooks = self.cast_orderbooks(orderbooks_json, time)
-        OrderBook.objects.bulk_create(orderbooks)
+        orders = self.cast_orderbooks(orderbooks_json, time)
+        Order.objects.bulk_create(orders)
         # used for testing
-        return orderbooks
+        return orders
 
     def refresh_tickers(self, time):
         tks_json = self.api.tickers(self.coins)
