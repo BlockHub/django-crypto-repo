@@ -1,5 +1,5 @@
 from django.db import models
-from common.models import AbstractTicker, AbstractMarket, AbstractOrderBook
+from common.models import AbstractTicker, AbstractMarket, AbstractOrderBook, AbstractOrder
 # Create your models here.
 
 
@@ -23,3 +23,5 @@ class OrderBook(AbstractOrderBook):
     market = models.ForeignKey(Market, on_delete=models.CASCADE)
 
 
+class Order(AbstractOrder):
+    orderbook = models.ForeignKey(OrderBook, on_delete=models.CASCADE)

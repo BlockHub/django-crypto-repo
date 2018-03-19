@@ -1,10 +1,10 @@
-from common.api import AbstractMarketApi
+from common.api import AbstractRestApi
 from aiobittrex.bittrex import Bittrex, API_V2_0, API_V1_1, BOTH_ORDERBOOK
 import asyncio
 from common.exceptions import ProgrammingError
 
 
-class BittrexApi(AbstractMarketApi):
+class BittrexApi(AbstractRestApi):
 
     def __init__(self, key=None, secret=None, v1=False, v2=False):
 
