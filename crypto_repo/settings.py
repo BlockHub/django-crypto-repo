@@ -145,6 +145,12 @@ BOTS = {
     },
     'GDAX': {
         'REFRESH_RATE': 60,
+        'REST_END_POINT': None,
+        'WS_ENDPOINT': "wss://ws-feed.gdax.com"
+    },
+    'HUOBI': {
+        'REFRESH_RATE': 60,
+        'REST_END_POINT': "https://api.huobi.com/",
+        'WS_ENDPOINT': None
     }
-
 }
