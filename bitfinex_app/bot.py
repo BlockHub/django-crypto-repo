@@ -1,5 +1,5 @@
 from common.bot import AbstractObserverBot
-from bitfinex_app.models import Market, OrderBook, Ticker
+from bitfinex_app.models import Market, OrderBook, Ticker, Order
 from bitfinex_app.api import BitfinexApi
 import datetime
 import time
@@ -81,44 +81,49 @@ class ObserverBot(AbstractObserverBot):
         return tks
 
     def cast_orderbook(self, orderbooks):
-        res = []
+        orders = []
         for market in orderbooks['data']:
             try:
                 current_book = market.orderbook_set.latest('state_number')
-                state = current_book.state_number
             except ObjectDoesNotExist:
-                # needed at empty db
-                state = 0
+                # we should only get this error on our first run
+                pass
 
             for data in orderbooks['data'][market]:
                 book = data[0][0]
                 # if we disconnect& reconnect or on startup, we receive a completely new orderbook
                 if len(book) > 3:
+                    new_book = OrderBook.objects.create(
+                        market=market,
+                        time=orderbooks['time'],
+                    )
+                    new_book.save()
                     for i in book:
-                        res.append(
-                            OrderBook(
-                                state_number=state + 1,
+                        orders.append(
+                            Order(
+                                orderbook=new_book,
                                 price=i[0],
                                 count=i[1],
-                                amount=i[2],
+                                quantity=i[2],
                                 last_updated=data[1],
                                 time=orderbooks['time'],
-                                market=market,
                             )
                         )
                 else:
-                    res.append(
-                        OrderBook(
-                            state_number=state,
-                            price=book[0],
-                            count=book[1],
-                            amount=book[2],
+                    orders.append(
+                        Order(
+                            # if current_book is referenced before assignment,
+                            # something has gone wrong with our initial creation
+                            # of an orderbook
+                            orderbook=current_book,
+                            price=i[0],
+                            count=i[1],
+                            quantity=i[2],
                             last_updated=data[1],
                             time=orderbooks['time'],
-                            market=market,
                         )
                     )
-        return res
+        return orders
 
     def refresh_ticker(self, time):
         tks = self.get_tickers(time)
@@ -127,10 +132,10 @@ class ObserverBot(AbstractObserverBot):
         return casted_tks
 
     def refresh_orderbook(self, time):
-        obs = self.get_orderbook(time)
-        casted_obs = self.cast_orderbook(obs)
-        OrderBook.objects.bulk_create(casted_obs)
-        return obs
+        orderbooks = self.get_orderbook(time)
+        orders = self.cast_orderbook(orderbooks)
+        Order.objects.bulk_create(orders)
+        return orders
 
     def run(self, single=False):
         # basic startup procedure

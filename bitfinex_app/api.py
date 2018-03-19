@@ -1,10 +1,10 @@
 from btfxwss import BtfxWss
 from bitfinex.client import Client
 import time
-from common.api import AbstractMarketApi
+from common.api import AbstractRestApi
 
 
-class BitfinexApi(AbstractMarketApi):
+class BitfinexApi(AbstractRestApi):
 
     def __init__(self, key=None, secret=None):
 
