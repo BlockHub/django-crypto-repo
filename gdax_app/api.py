@@ -1,6 +1,6 @@
 import gdax
 from collections import deque
-
+from common.api import AbstractWssApi
 
 class DataBin:
 
@@ -20,15 +20,16 @@ class DataBin:
 
 
 class WebsocketClient(gdax.WebsocketClient):
-    def __init__(self, handle_ticks=None):
-        self.url = "wss://ws-feed.gdax.com"
+    def __init__(self, settings, handle_ticks=None):
+        self.settings = settings
+        self.ws_url = settings['WS_ENDPOINT']
         self.handle_ticks = handle_ticks
         self.gdax = gdax.PublicClient()
         self.bin = DataBin()
         self.type = 'ticker'
         self.products = [m['id'] for m in self.gdax.get_products()]
         self.orderbooks = {}
-        super().__init__(url=self.url, products=self.products, channels=['ticker'])
+        super().__init__(url=self.ws_url, products=self.products, channels=['ticker'])
         # since gdax has so few products, this takes almost no time. Can be optimized though
 
     def get_markets(self):
