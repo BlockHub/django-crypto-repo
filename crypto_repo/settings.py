@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'bittrex_app',
     'binance_app',
     'bitfinex_app',
+    'gdax_app',
 ]
 
 MIDDLEWARE = [
@@ -142,5 +143,8 @@ BOTS = {
     'BITFINEX': {
         'REFRESH_RATE': 60,
     },
+    'GDAX': {
+        'REFRESH_RATE': 60,
+    }
 
 }
