@@ -28,22 +28,14 @@ class AbstractOrderBook(models.Model):
     class Meta:
         abstract = True
         get_latest_by = 'time'
-    buy = models.BooleanField()
-    quantity = models.FloatField()
-    rate = models.FloatField()
     time = models.DateTimeField()
 
 
-class AbstractChainedOrderbook(models.Model):
+class AbstractOrder(models.Model):
     class Meta:
         abstract = True
         get_latest_by = 'time'
-
-    time = models.DateTimeField()
-    state_number = models.IntegerField()
-
-
-
-
-
+    buy = models.BooleanField()
+    quantity = models.FloatField()
+    rate = models.FloatField()
 
