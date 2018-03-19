@@ -1,9 +1,9 @@
-from common.api import AbstractMarketApi
+from common.api import AbstractRestApi
 from aiobinance.client import Client
 import asyncio
 
 
-class BinanceApi(AbstractMarketApi):
+class BinanceApi(AbstractRestApi):
 
     def __init__(self, key=None, secret=None):
 

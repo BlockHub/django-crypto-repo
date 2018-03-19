@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     # our apps
     'common',
     'bittrex_app',
-    'binance',
+    'binance_app',
     'bitfinex_app',
 ]
 

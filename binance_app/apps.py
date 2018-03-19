@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class BinanceConfig(AppConfig):
-    name = 'binance'
+    name = 'binance_app'
