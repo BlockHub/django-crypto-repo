@@ -19,8 +19,10 @@ class Migration(migrations.Migration):
                 ('verbose', models.CharField(max_length=100, null=True)),
                 ('tkr', models.CharField(max_length=100)),
                 ('quote', models.CharField(max_length=10)),
-                ('is_active', models.BooleanField(default=True)),
-                ('min_trade_size', models.FloatField()),
+                ('base_min_size', models.FloatField()),
+                ('base_max_size', models.FloatField()),
+                ('limit_only', models.BooleanField()),
+                ('margin_enabled', models.BooleanField()),
             ],
             options={
                 'abstract': False,
@@ -33,6 +35,7 @@ class Migration(migrations.Migration):
                 ('buy', models.NullBooleanField()),
                 ('quantity', models.FloatField()),
                 ('rate', models.FloatField()),
+                ('hash_id', models.CharField(max_length=100)),
             ],
             options={
                 'get_latest_by': 'time',
@@ -44,7 +47,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('time', models.DateTimeField()),
-                ('market', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='bittrex_app.Market')),
+                ('sequence', models.IntegerField()),
+                ('market', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='gdax_app.Market')),
             ],
             options={
                 'get_latest_by': 'time',
@@ -56,10 +60,15 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('time', models.DateTimeField()),
-                ('bid', models.FloatField()),
-                ('ask', models.FloatField()),
-                ('last', models.FloatField()),
-                ('market', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='bittrex_app.Market')),
+                ('price', models.FloatField()),
+                ('open_24h', models.FloatField()),
+                ('volume_30d', models.FloatField()),
+                ('volume_24h', models.FloatField()),
+                ('low_24h', models.FloatField()),
+                ('high_24h', models.FloatField()),
+                ('best_bid', models.FloatField()),
+                ('best_ask', models.FloatField()),
+                ('market', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='gdax_app.Market')),
             ],
             options={
                 'abstract': False,
@@ -68,7 +77,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='order',
             name='orderbook',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='bittrex_app.OrderBook'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='gdax_app.OrderBook'),
         ),
         migrations.AlterUniqueTogether(
             name='market',
@@ -76,6 +85,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name='ticker',
-            index=models.Index(fields=['time'], name='bittrex_app_time_da04a9_idx'),
+            index=models.Index(fields=['time'], name='gdax_app_ti_time_fe3e23_idx'),
         ),
     ]
