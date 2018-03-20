@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+from decouple import config, Csv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,12 +21,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'y+=#cm$62(w!f$bxxmitx5__zbr!jl3y381p(7&8*(hq@8&8h#'
+SECRET_KEY = config('SECRET_KEY')
+STATIC_ROOT = config('STATIC_ROOT')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 
 # Application definition
@@ -85,9 +87,13 @@ WSGI_APPLICATION = 'crypto_repo.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config('DEFAULT_DB_NAME'),
+        'USER': config('DEFAULT_DB_USER'),
+        'PASSWORD': config('DEFAULT_DB_PASSWORD'),
+        'HOST': config('DEFAULT_DB_HOST'),
+        'PORT': config('DEFAULT_DB_PORT', cast=int),
+    },
 }
 
 
@@ -126,32 +132,76 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
-
 STATIC_URL = '/static/'
 
 BOTS = {
     'BITTREX': {
         # interval of getting new orderbooks and tickers for all coins (includes time to get info)
-        'REFRESH_RATE': 60,
+        'REFRESH_RATE': config('BITTREX_REFRESH_RATE'),
     },
     'BINANCE': {
         # seems it needs to be higher than 60. 120 is working for now
-        'REFRESH_RATE': 120,
+        'REFRESH_RATE': config('BINANCE_REFRESH_RATE'),
     },
     'KRAKEN': {
-        'REFRESH_RATE': 60,
+        'REFRESH_RATE': config('KRAKEN_REFRESH_RATE'),
     },
     'BITFINEX': {
-        'REFRESH_RATE': 60,
+        'REFRESH_RATE': config('BITFINEX_REFRESH_RATE'),
     },
     'GDAX': {
-        'REFRESH_RATE': 60,
+        'REFRESH_RATE': config('GDAX_REFRESH_RATE'),
         'REST_END_POINT': None,
         'WS_ENDPOINT': "wss://ws-feed.gdax.com"
     },
     'HUOBI': {
-        'REFRESH_RATE': 60,
+        'REFRESH_RATE': config('HUOBI_REFRESH_RATE'),
         'REST_END_POINT': "https://api.huobi.com/",
         'WS_ENDPOINT': None
     }
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['sentry'],
+    },
+
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s '
+                      '%(process)d %(thread)d %(message)s'
+        },
+    },
+    'handlers': {
+        'sentry': {
+            'level': config('SENTRY_HANDLER_LEVEL'),
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'tags': {'custom-tag': 'x'},
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': True,
+        },
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': True,
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': True,
+        },
+    },
 }
