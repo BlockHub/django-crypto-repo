@@ -1,15 +1,19 @@
 from common.api import AbstractRestApi
 from aiobinance.client import Client
+from binance.websockets import BinanceSocketManager
+from binance.client import Client as SyncClient
+from binance.depthcache import DepthCacheManager
+
 import asyncio
 
 
-class BinanceApi(AbstractRestApi):
+class BinanceRestApi(AbstractRestApi):
 
     def __init__(self, key=None, secret=None):
 
         self.key = key
         self.secret = secret
-        self.client = Client(self.key, self.secret)
+        self.client = Client(self.key, self.secret, conn_timeout=30, read_timout=30)
         self.loop = asyncio.get_event_loop()
 
     # def tickers(self, market):
@@ -57,3 +61,31 @@ class BinanceApi(AbstractRestApi):
     def get_markets(self):
         task = [self.client.get_exchange_info()]
         return self.loop.run_until_complete(asyncio.gather(*task))[0]
+
+
+class BinanceWS:
+    def __init__(self, on_ticker, on_orderbook, key=None, secret=None,):
+        self.client = SyncClient(key, secret)
+        self.ws = BinanceSocketManager(self.client)
+        self.on_ticker = on_ticker
+        self.on_orderbook = on_orderbook
+        self.orderbooks = {}
+
+    def subscribe_tickers(self, markets):
+        for i in markets:
+            self.ws.start_symbol_ticker_socket(i.market(), self.on_ticker)
+        self.ws.start()
+
+    def subscribe_orderbook(self, markets):
+        print(len(markets))
+        for i in markets:
+            dcm = DepthCacheManager(self.client, i.market())
+            self.orderbooks.update({i: dcm})
+            print('created orderbook: {}'.format(i.market()))
+
+    def extract_orderbooks(self):
+        res = {}
+        for i in self.orderbooks:
+            res.update({i: self.orderbooks[i].get_depth_cache()})
+        return res
+
