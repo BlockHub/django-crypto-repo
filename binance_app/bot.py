@@ -1,6 +1,6 @@
 from common.bot import AbstractObserverBot
 from binance_app.models import Market, OrderBook, Ticker, Order
-from binance_app.api import BinanceApi
+from binance_app.api import BinanceRestApi
 import datetime
 import time
 from django.utils import timezone
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class ObserverBot(AbstractObserverBot):
 
     def __init__(self, exchange, key='', secret='', ):
-        self.api = BinanceApi(key=key, secret=secret)
+        self.api = BinanceRestApi(key=key, secret=secret)
         super().__init__(exchange=exchange)
 
     # ran the first time when setting up the bot
@@ -92,12 +92,12 @@ class ObserverBot(AbstractObserverBot):
                     )
                 )
 
-            for x in ob['asks']:
+            for x in orderbook['asks']:
                 orders.append(
                     Order(
                         buy=False,
-                        quantity=i[1],
-                        rate=i[0],
+                        quantity=x[1],
+                        rate=x[0],
                         orderbook=ob,
                     )
                 )
