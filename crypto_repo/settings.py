@@ -135,7 +135,8 @@ BOTS = {
         'REFRESH_RATE': 60,
     },
     'BINANCE': {
-        'REFRESH_RATE': 60,
+        # seems it needs to be higher than 60. 120 is working for now
+        'REFRESH_RATE': 120,
     },
     'KRAKEN': {
         'REFRESH_RATE': 60,

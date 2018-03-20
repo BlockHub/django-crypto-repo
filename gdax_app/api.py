@@ -1,6 +1,5 @@
 import gdax
 from collections import deque
-from common.api import AbstractWssApi
 
 class DataBin:
 
@@ -12,7 +11,6 @@ class DataBin:
 
     def dump_ticker(self):
         res = []
-        print(self.ticker)
         while self.ticker:
             res.append(self.ticker.popleft())
 
@@ -37,7 +35,6 @@ class WebsocketClient(gdax.WebsocketClient):
 
     def on_message(self, msg):
         if msg['type'] == 'ticker':
-            print(msg)
             if self.handle_ticks:
                 self.handle_ticks(msg)
             else:

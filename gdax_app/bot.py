@@ -13,11 +13,11 @@ logger = logging.getLogger(__name__)
 class ObserverBot(AbstractObserverBot):
 
     def __init__(self, exchange):
-        self.api = WebsocketClient(
-            handle_ticks=self.handle_ticker
-
-        )
         super().__init__(exchange=exchange)
+        self.api = WebsocketClient(
+            handle_ticks=self.handle_ticker,
+            settings=self.setting
+        )
 
     # ran the first time when setting up the bot
     def create_markets(self):
@@ -35,7 +35,7 @@ class ObserverBot(AbstractObserverBot):
                 )
             )
         Market.objects.bulk_create(markets)
-        self.coins = markets
+        self.coins = Market.objects.all()
 
     def update_markets(self):
         new_markets = []
@@ -79,7 +79,8 @@ class ObserverBot(AbstractObserverBot):
             high_24h=msg['high_24h'],
             volume_30d=msg['volume_30d'],
             best_bid=msg['best_bid'],
-            best_ask=msg['best_ask']
+            best_ask=msg['best_ask'],
+            time=datetime.datetime.now()
         ).save()
 
     def cast_orderbook(self, orderbooks, time):
@@ -95,31 +96,28 @@ class ObserverBot(AbstractObserverBot):
             )
             ob.save()
             for orders in orderbooks[market_id]['asks']:
-                for order in orderbooks[market_id]['asks'][orders]:
-                    books.append(
-                        Order(
-                            orderbook=order,
-                            rate=orderbooks[market_id]['asks'][orders][order][0],
-                            quantity=orderbooks[market_id]['asks'][orders][order][1],
-                            hash_id=orderbooks[market_id]['asks'][orders][order][2],
-                        )
+                books.append(
+                    Order(
+                        orderbook=ob,
+                        rate=orders[0],
+                        quantity=orders[1],
+                        hash_id=orders[2],
                     )
+                )
             for orders in orderbooks[market_id]['bids']:
-                for order in orderbooks[market_id]['bids'][orders]:
                     books.append(
-                        Order(
-                            orderbook=order,
-                            rate=orderbooks[market_id]['bids'][orders][order][0],
-                            quantity=orderbooks[market_id]['bids'][orders][order][1],
-                            hash_id=orderbooks[market_id]['bids'][orders][order][2],
-                        )
+                    Order(
+                        orderbook=ob,
+                        rate=orders[0],
+                        quantity=orders[1],
+                        hash_id=orders[2],
+                    )
                     )
         return books
 
     def refresh_orderbook(self, time):
         obs = self.get_orderbooks()
         casted_obs = self.cast_orderbook(obs, time)
-        print(casted_obs)
         Order.objects.bulk_create(casted_obs)
         return obs
 

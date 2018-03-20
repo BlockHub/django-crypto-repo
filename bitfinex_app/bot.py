@@ -84,10 +84,13 @@ class ObserverBot(AbstractObserverBot):
         orders = []
         for market in orderbooks['data']:
             try:
-                current_book = market.orderbook_set.latest('state_number')
+                current_book = market.orderbook_set.latest()
             except ObjectDoesNotExist:
                 # we should only get this error on our first run
-                pass
+                current_book = OrderBook.objects.create(
+                    market=market,
+                    time=orderbooks['time'],
+                )
 
             for data in orderbooks['data'][market]:
                 book = data[0][0]
@@ -98,11 +101,20 @@ class ObserverBot(AbstractObserverBot):
                         time=orderbooks['time'],
                     )
                     new_book.save()
+
                     for i in book:
+                        if i[0]>0:
+                            buy = True
+                        elif i[0]<0:
+                            buy = False
+                        else:
+                            buy=None
+
                         orders.append(
                             Order(
+                                buy=buy,
                                 orderbook=new_book,
-                                price=i[0],
+                                rate=i[0],
                                 count=i[1],
                                 quantity=i[2],
                                 last_updated=data[1],
@@ -116,9 +128,9 @@ class ObserverBot(AbstractObserverBot):
                             # something has gone wrong with our initial creation
                             # of an orderbook
                             orderbook=current_book,
-                            price=i[0],
-                            count=i[1],
-                            quantity=i[2],
+                            rate=book[0],
+                            count=book[1],
+                            quantity=book[2],
                             last_updated=data[1],
                             time=orderbooks['time'],
                         )

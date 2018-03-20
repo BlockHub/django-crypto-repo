@@ -39,7 +39,7 @@ class ObserverBot(AbstractObserverBot):
                 new_coins.append(
                     Market(
                         is_active=i['IsActive'],
-                        base_currency=i['BaseCurrency'],
+                        quote=i['BaseCurrency'],
                         min_trade_size=i['MinTradeSize'],
                         tkr=i['MarketCurrency'],
                         verbose=i['MarketCurrencyLong'],

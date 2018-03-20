@@ -3,34 +3,37 @@ from aiobinance.client import Client
 from binance.websockets import BinanceSocketManager
 from binance.client import Client as SyncClient
 from binance.depthcache import DepthCacheManager
-
+from concurrent.futures._base import TimeoutError
 import asyncio
 
 
 class BinanceRestApi(AbstractRestApi):
 
-    def __init__(self, key=None, secret=None):
+    def __init__(self, key=None, secret=None, conn_timout=600, read_timeout=60):
 
         self.key = key
         self.secret = secret
-        self.client = Client(self.key, self.secret, conn_timeout=30, read_timout=30)
+        self.client = Client(self.key, self.secret, conn_timeout=conn_timout, read_timout=read_timeout)
         self.loop = asyncio.get_event_loop()
 
     # def tickers(self, market):
     #     return self.__api_call(self.v1.get_orderbook, market, BOTH_ORDERBOOK)
 
     async def get_orderbook(self, market):
-        res = await self.client.get_order_book(symbol=market.market())
-
-        # a single retry if the api fails
-        if not res['bids']:
+        try:
             res = await self.client.get_order_book(symbol=market.market())
 
-        # our loop might return the orderbooks unordered. This way our FK relations are correct.
-        if res['bids']:
-            res.update({
-                'market': market})
-        return res
+            # a single retry if the api fails
+            if not res['bids']:
+                res = await self.client.get_order_book(symbol=market.market())
+
+            # our loop might return the orderbooks unordered. This way our FK relations are correct.
+            if res['bids']:
+                res.update({
+                    'market': market})
+            return res
+        except TimeoutError:
+            pass
 
     def orderbooks(self, markets):
         tasks = [self.get_orderbook(i) for i in markets]
@@ -38,20 +41,23 @@ class BinanceRestApi(AbstractRestApi):
         return obs
 
     async def get_ticker(self, market):
-        res = await self.client.get_ticker(symbol=market.market())
-
-        # apparently this endpoint might return a list cointaining one dict
-        if type(res) == list:
-            res = res[0]
-        # a single retry if the api fails, no success param, so we check for a different one
-        if not res['volume']:
+        try:
             res = await self.client.get_ticker(symbol=market.market())
 
-        # our loop might return the orderbooks unordered. This way our FK relations are correct.
-        if res['volume']:
-            res.update({
-                'market': market})
-        return res
+            # apparently this endpoint might return a list cointaining one dict
+            if type(res) == list:
+                res = res[0]
+            # a single retry if the api fails, no success param, so we check for a different one
+            if not res['volume']:
+                res = await self.client.get_ticker(symbol=market.market())
+
+            # our loop might return the orderbooks unordered. This way our FK relations are correct.
+            if res['volume']:
+                res.update({
+                    'market': market})
+            return res
+        except TimeoutError:
+            pass
 
     def tickers(self, markets):
         tasks = [self.get_ticker(i) for i in markets]

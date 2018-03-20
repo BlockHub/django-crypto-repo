@@ -28,6 +28,7 @@ class AbstractOrderBook(models.Model):
     class Meta:
         abstract = True
         get_latest_by = 'time'
+
     time = models.DateTimeField()
 
 
@@ -35,7 +36,8 @@ class AbstractOrder(models.Model):
     class Meta:
         abstract = True
         get_latest_by = 'time'
-    buy = models.BooleanField()
+    # only null if orderbooks use a special type to remove orders, i.e. bitfinex
+    buy = models.NullBooleanField()
     quantity = models.FloatField()
     rate = models.FloatField()
 

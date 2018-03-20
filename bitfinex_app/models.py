@@ -42,4 +42,4 @@ class Order(AbstractOrder):
     count = models.IntegerField()  # int	Number of orders at that price level.
                                    # quantity is the total number available
     last_updated = models.IntegerField()
-    time=models.DateTimeField()
+    time = models.DateTimeField()

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class ObserverBot(AbstractObserverBot):
 
     def __init__(self, exchange, key='', secret='', ):
-        self.api = BinanceRestApi(key=key, secret=secret)
+        self.api = BinanceRestApi(key=key, secret=secret, conn_timout=None, read_timeout=None)
         super().__init__(exchange=exchange)
 
     # ran the first time when setting up the bot
@@ -70,6 +70,9 @@ class ObserverBot(AbstractObserverBot):
 
         orders = []
         for orderbook in orderbooks:
+            # if Orderbook is None, we had an api timouterror. Better luck next time!
+            if not orderbook:
+                continue
             # sometimes a retried api call still failed
             if not orderbook['bids'] or not orderbook['market']:
                 logger.error(orderbook)
@@ -106,6 +109,9 @@ class ObserverBot(AbstractObserverBot):
     def cast_tickers(self, res, time):
         tks = []
         for tk in res:
+            # if tk is None, the api had a timouterror
+            if not tk:
+                continue
             if not tk['volume']:
                 logger.error(tk)
                 continue
