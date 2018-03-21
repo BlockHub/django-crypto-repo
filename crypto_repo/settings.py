@@ -95,6 +95,7 @@ if DEBUG:
             'NAME': 'db.sqlite3',
         }
     }
+
 else:
     DATABASES = {
         'default': {
@@ -108,7 +109,6 @@ else:
     }
 
 DATABASE_ROUTERS = [
-    ...,
     'locks.router.Router'
 ]
 
