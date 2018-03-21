@@ -148,26 +148,37 @@ BOTS = {
     'BITTREX': {
         # interval of getting new orderbooks and tickers for all coins (includes time to get info)
         'REFRESH_RATE': config('BITTREX_REFRESH_RATE', cast=int),
+        'LOCK_ID': 'BITTREX'
     },
     'BINANCE': {
         # seems it needs to be higher than 60. 120 is working for now
         'REFRESH_RATE': config('BINANCE_REFRESH_RATE', cast=int),
+        'LOCK_ID': 'BINANCE'
+
     },
     'KRAKEN': {
         'REFRESH_RATE': config('KRAKEN_REFRESH_RATE', cast=int),
+        'LOCK_ID': 'KRAKEN'
+
     },
     'BITFINEX': {
         'REFRESH_RATE': config('BITFINEX_REFRESH_RATE', cast=int),
+        'LOCK_ID': 'BITFINEX'
+
     },
     'GDAX': {
         'REFRESH_RATE': config('GDAX_REFRESH_RATE', cast=int),
         'REST_END_POINT': None,
-        'WS_ENDPOINT': "wss://ws-feed.gdax.com"
+        'WS_ENDPOINT': "wss://ws-feed.gdax.com",
+        'LOCK_ID': 'GDAX'
+
     },
     'HUOBI': {
         'REFRESH_RATE': config('HUOBI_REFRESH_RATE', cast=int),
         'REST_END_POINT': "https://api.huobi.com/",
-        'WS_ENDPOINT': None
+        'WS_ENDPOINT': None,
+        'LOCK_ID': 'HUOBI'
+
     }
 }
 
