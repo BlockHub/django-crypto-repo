@@ -17,7 +17,6 @@ cryptography==2.2
 dateparser==0.7.0
 Django==2.0.3
 django-extensions==2.0.6
-gdax==1.0.6
 httpretty==0.8.14
 huobi-client==0.3.1
 hyperlink==18.0.0
@@ -51,3 +50,4 @@ websocket-client==0.40.0
 yarl==1.1.1
 zope.interface==4.4.3
 gunicorn==19.7.1
+git+https://github.com/danpaquin/gdax-python@master
