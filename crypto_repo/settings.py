@@ -139,25 +139,25 @@ STATIC_URL = '/static/'
 BOTS = {
     'BITTREX': {
         # interval of getting new orderbooks and tickers for all coins (includes time to get info)
-        'REFRESH_RATE': config('BITTREX_REFRESH_RATE'),
+        'REFRESH_RATE': config('BITTREX_REFRESH_RATE', cast=int),
     },
     'BINANCE': {
         # seems it needs to be higher than 60. 120 is working for now
-        'REFRESH_RATE': config('BINANCE_REFRESH_RATE'),
+        'REFRESH_RATE': config('BINANCE_REFRESH_RATE', cast=int),
     },
     'KRAKEN': {
-        'REFRESH_RATE': config('KRAKEN_REFRESH_RATE'),
+        'REFRESH_RATE': config('KRAKEN_REFRESH_RATE', cast=int),
     },
     'BITFINEX': {
-        'REFRESH_RATE': config('BITFINEX_REFRESH_RATE'),
+        'REFRESH_RATE': config('BITFINEX_REFRESH_RATE', cast=int),
     },
     'GDAX': {
-        'REFRESH_RATE': config('GDAX_REFRESH_RATE'),
+        'REFRESH_RATE': config('GDAX_REFRESH_RATE', cast=int),
         'REST_END_POINT': None,
         'WS_ENDPOINT': "wss://ws-feed.gdax.com"
     },
     'HUOBI': {
-        'REFRESH_RATE': config('HUOBI_REFRESH_RATE'),
+        'REFRESH_RATE': config('HUOBI_REFRESH_RATE', cast=int),
         'REST_END_POINT': "https://api.huobi.com/",
         'WS_ENDPOINT': None
     }
