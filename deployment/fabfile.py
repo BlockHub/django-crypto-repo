@@ -25,29 +25,32 @@ def git():
 
 
 def install():
-    print('updating')
     sudo('apt-get update')
     sudo('apt-get -y upgrade')
-    print('installing python')
     with settings(prompts={
         "Press [ENTER] to continue or ctrl-c to cancel adding it": '',
         'Do you want to continue? [Y/n] ': 'Y'
     }):
+        # this gcc is redundant in some images, but required in others. We
+        # use a dev version of python since we have cutting edge tech
+        sudo('apt-get install gcc')
+        sudo('add-apt-repository ppa:deadsnakes/ppa')
+        sudo('apt-get install python3.6-dev')
         sudo('apt-get update')
-        sudo('apt-get install python3.6')
-        print('install postgres')
         sudo('apt-get -y install postgresql postgresql-contrib')
-        print('installing nginx')
         sudo('apt-get -y install nginx')
-        print('installing supervisor')
         sudo('apt-get -y install supervisor')
         sudo('systemctl enable supervisor')
         sudo('systemctl start supervisor')
-        print('installing virtual environmment')
         run('wget https://bootstrap.pypa.io/get-pip.py')
         sudo('python3.6 get-pip.py')
         sudo('pip3.6 install virtualenv')
-        sudo('apt-get install python-dev python3.6-dev')
+
+
+def update_basics():
+    sudo('apt-get update')
+    sudo('apt-get upgrade')
+
 
 
 def create_application_user():
@@ -79,7 +82,7 @@ def deploy_django():
     with settings(prompts={
         "Type 'yes' to continue, or 'no' to cancel: ": 'yes'
     }):
-        run('pip3 install -r ' + config.GIT_REPO_NAME + '/requirements.txt')
+        run('pip3 install -r ' + config.GIT_REPO_NAME + '/requirements.txt --no-cache-dir')
         run('pip3 install psycopg2-binary')
         with cd(config.CODE_DIR + '/' + config.GIT_REPO_NAME):
             upload_template('files/consumer_env',
@@ -95,6 +98,22 @@ def deploy_django():
                 password=config.SUPERUSER_PASSWORD
             ))
 
+def update_django():
+    with cd(config.CODE_DIR + '/' + config.GIT_REPO_NAME):
+        with settings(prompts={
+            "Type 'yes' to continue, or 'no' to cancel: ": 'yes'
+        }):
+            upload_template('files/consumer_env',
+                            destination='.env')
+            run('python manage.py migrate')
+            run('python manage.py collectstatic')
+            run(
+                """echo "from django.contrib.auth.models import User; User.objects.filter(email='{email}').delete(); User.objects.create_superuser(username='{user}', email='{email}', password='{password}')" | python manage.py shell""".format(
+                    email=config.SUPERUSER_EMAIL,
+                    user=config.SUPERUSER_NAME,
+                    password=config.SUPERUSER_PASSWORD
+                ))
+
 
 def setup_gunicorn():
     upload_template(
@@ -105,7 +124,14 @@ def setup_gunicorn():
     with settings(warn_only=True):
         run('mkdir run logs')
         run('touch logs/gunicorn.log')
-        run('touch logs/binancebot.log')
+
+
+def update_gunicorn():
+    upload_template(
+        filename='files/gunicorn_start',
+        destination='/srv/CIP'
+    )
+    run('chmod u+x /srv/CIP/gunicorn_start')
 
 
 def setup_logfiles():
@@ -157,38 +183,50 @@ def setup_nginx():
 
 
 def cleanup():
-    sudo('apt autoremove')
+    with settings(promts={
+        'Do you want to continue? [Y/n] ': 'Y'
+    }):
+        sudo('apt autoremove')
 
 
-def deploy():
-    if config.INITIAL:
-        install()
-        create_application_user()
-        database_setup()
-        with settings(warn_only=True):
-            sudo('mkdir /srv/CIP')
+def initial_deploy():
+    install()
+    create_application_user()
+    database_setup()
+    with settings(warn_only=True):
+        sudo('mkdir /srv/CIP')
 
-        with cd(config.CODE_DIR):
-            # with settings(user=config.CONSUMER_USER,
-            #               prompts={
-            #                   "Login password for 'uconsumer': ": config.CONSUMER_USER
-            #     }):
-            git()
-            create_venv()
-            with virtualenv():
-                with settings(prompts={
-                    "Type 'yes' to continue, or 'no' to cancel: ": 'yes'
-                }):
-                    deploy_django()
-                    setup_logfiles()
-                    setup_gunicorn()
+    with cd(config.CODE_DIR):
+        # with settings(user=config.CONSUMER_USER,
+        #               prompts={
+        #                   "Login password for 'uconsumer': ": config.CONSUMER_USER
+        #     }):
+        git()
+        create_venv()
+        with virtualenv():
+            with settings(prompts={
+                "Type 'yes' to continue, or 'no' to cancel: ": 'yes'
+            }):
+                deploy_django()
+                setup_logfiles()
+                setup_gunicorn()
 
-        setup_supervisor()
-        setup_nginx()
+    setup_supervisor()
+    setup_nginx()
+    cleanup()
 
-    else:
-        with cd(config.CODE_DIR):
-            git()
+
+def update():
+    update_basics()
+    with cd(config.CODE_DIR):
+        git()
+        with virtualenv():
+            update_django()
+            update_gunicorn()
             setup_supervisor()
-            setup_nginx()
+            setup_supervisor()
+            cleanup()
+
+
+
 

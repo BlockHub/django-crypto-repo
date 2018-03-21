@@ -30,7 +30,7 @@ class Ticker(AbstractTicker):
 
 class OrderBook(AbstractOrderBook):
     market = models.ForeignKey(Market, on_delete=models.CASCADE)
-    last_updated = models.IntegerField()
+    last_updated = models.BigIntegerField()
 
 
 class Order(AbstractOrder):

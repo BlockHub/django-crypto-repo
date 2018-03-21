@@ -27,7 +27,10 @@ class WebsocketClient(gdax.WebsocketClient):
         self.type = 'ticker'
         self.products = [m['id'] for m in self.gdax.get_products()]
         self.orderbooks = {}
-        super().__init__(url=self.ws_url, products=self.products, channels=['ticker'])
+        super().__init__(url=self.ws_url,
+                         products=self.products,
+                         channels=['ticker']
+                         )
         # since gdax has so few products, this takes almost no time. Can be optimized though
 
     def get_markets(self):

@@ -30,7 +30,7 @@ class Ticker(AbstractTicker):
 
 class OrderBook(AbstractOrderBook):
     market = models.ForeignKey(Market, on_delete=models.CASCADE)
-    sequence = models.IntegerField() # gdax does not use TCIP, and thus returns a sequence number
+    sequence = models.BigIntegerField() # gdax does not use TCIP, and thus returns a sequence number
                                      # for users to verify if they are on the correct orderbook
 
 

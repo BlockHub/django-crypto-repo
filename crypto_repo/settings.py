@@ -87,16 +87,24 @@ WSGI_APPLICATION = 'crypto_repo.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': config('DEFAULT_DB_NAME'),
-        'USER': config('DEFAULT_DB_USER'),
-        'PASSWORD': config('DEFAULT_DB_PASSWORD'),
-        'HOST': config('DEFAULT_DB_HOST'),
-        'PORT': config('DEFAULT_DB_PORT', cast=int),
-    },
-}
+if not DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': config('DEFAULT_DB_NAME'),
+            'USER': config('DEFAULT_DB_USER'),
+            'PASSWORD': config('DEFAULT_DB_PASSWORD'),
+            'HOST': config('DEFAULT_DB_HOST'),
+            'PORT': config('DEFAULT_DB_PORT', cast=int),
+        },
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'db.sqlite3',
+        }
+    }
 
 
 # Password validation

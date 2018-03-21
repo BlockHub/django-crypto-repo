@@ -15,7 +15,7 @@ class Market(AbstractMarket):
 
 class Ticker(AbstractTicker):
     market = models.ForeignKey(Market, on_delete=models.CASCADE)
-    actual_time = models.IntegerField() # websocket returned timestamp
+    actual_time = models.BigIntegerField() # websocket returned timestamp
 
     bid	= models.FloatField() # Price of last highest bid
     bid_size = models.FloatField() # Size of the last highest bid
@@ -39,7 +39,7 @@ class OrderBook(AbstractOrderBook):
 
 class Order(AbstractOrder):
     orderbook = models.ForeignKey(OrderBook, on_delete=models.CASCADE)
-    count = models.IntegerField()  # int	Number of orders at that price level.
+    count = models.BigIntegerField()  # int	Number of orders at that price level.
                                    # quantity is the total number available
-    last_updated = models.IntegerField()
+    last_updated = models.BigIntegerField()
     time = models.DateTimeField()
