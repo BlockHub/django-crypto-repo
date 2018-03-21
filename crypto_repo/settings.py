@@ -26,7 +26,7 @@ SECRET_KEY = config('SECRET_KEY')
 STATIC_ROOT = config('STATIC_ROOT')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG')
+DEBUG = config('DEBUG', cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
@@ -109,7 +109,7 @@ else:
     }
 
 DATABASE_ROUTERS = [
-    'locks.router.Router'
+    'locks.router.Router',
 ]
 
 LOCKS ={
