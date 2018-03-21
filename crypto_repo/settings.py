@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     #third party apps
     'django_extensions',
     'raven.contrib.django.raven_compat',
+    'locks',
 
     # our apps
     'common',
