@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 from decouple import config, Csv
+import raven
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
 
     #third party apps
     'django_extensions',
+    'raven.contrib.django.raven_compat',
 
     # our apps
     'common',
@@ -204,4 +206,8 @@ LOGGING = {
             'propagate': True,
         },
     },
+}
+
+RAVEN_CONFIG = {
+    'dsn': config('RAVEN_DSN'),
 }
