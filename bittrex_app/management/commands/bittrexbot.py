@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        @lock_and_log(logger, 'BITTREX')
+        @lock_and_log(logger, 'BITTREX', raise_error=False)
         def run():
             try:
                 self.stdout.write('starting Bittrex Observerbot')
