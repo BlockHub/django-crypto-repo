@@ -28,6 +28,12 @@ class Ticker(AbstractTicker):
     high = models.FloatField() # Daily high
     low = models.FloatField() # Daily low
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['ask']),
+            models.Index(fields=['bid']),
+        ]
+
 
 class OrderBook(AbstractOrderBook):
     market = models.ForeignKey(Market, on_delete=models.CASCADE)
@@ -43,3 +49,9 @@ class Order(AbstractOrder):
                                    # quantity is the total number available
     last_updated = models.BigIntegerField()
     time = models.DateTimeField()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['time']),
+            models.Index(fields=['last_updated']),
+        ]

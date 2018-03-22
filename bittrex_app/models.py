@@ -18,6 +18,12 @@ class Ticker(AbstractTicker):
     ask = models.FloatField()
     last = models.FloatField()
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['bid']),
+            models.Index(fields=['ask']),
+            models.Index(fields=['last']),
+        ]
 
 class OrderBook(AbstractOrderBook):
     market = models.ForeignKey(Market, on_delete=models.CASCADE)

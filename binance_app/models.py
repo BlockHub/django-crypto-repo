@@ -27,6 +27,13 @@ class Ticker(AbstractTicker):
     volume = models.FloatField()
     trade_count = models.FloatField()
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['last_price']),
+            models.Index(fields=['bid_price']),
+            models.Index(fields=['ask_price']),
+            models.Index(fields=['volume']),
+        ]
 
 class OrderBook(AbstractOrderBook):
     market = models.ForeignKey(Market, on_delete=models.CASCADE)

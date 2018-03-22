@@ -27,6 +27,13 @@ class Ticker(AbstractTicker):
     best_bid = models.FloatField()
     best_ask = models.FloatField()
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['best_bid']),
+            models.Index(fields=['best_ask']),
+            models.Index(fields=['price']),
+        ]
+
 
 class OrderBook(AbstractOrderBook):
     market = models.ForeignKey(Market, on_delete=models.CASCADE)
