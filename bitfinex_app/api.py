@@ -29,13 +29,18 @@ class BitfinexApi(AbstractRestApi):
     def extract_tickers(self, markets, time):
         res = {'time': time, 'data': {}}
         for market in markets:
-            queue = self.wss.tickers(market.market())
-            subres = []
-            while not queue.empty():
-                subres.append(queue.get())
-            res['data'].update({
-                market: subres
-            })
+            try:
+                queue = self.wss.tickers(market.market())
+                subres = []
+                while not queue.empty():
+                    subres.append(queue.get())
+                res['data'].update({
+                    market: subres
+                })
+                # not sure why keyerrors occur. Possibly because not all markets
+                # are supported with WS
+            except KeyError:
+                pass
         return res
 
     def extract_orderbook(self, markets, time):
