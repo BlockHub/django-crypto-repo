@@ -20,7 +20,6 @@ Django==2.0.3
 django-db-locks==0.0.7
 django-extensions==2.0.6
 Fabric3==1.14.post1
-gdax==1.0.6
 gunicorn==19.7.1
 httpretty==0.8.14
 huobi-client==0.3.1
