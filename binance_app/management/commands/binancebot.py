@@ -2,8 +2,11 @@ from django.core.management.base import BaseCommand, CommandError
 from binance_app.bot import ObserverBot
 import logging
 from locks.decorators import lock_and_log
+import warnings
+warnings.simplefilter('once')
 
 logger = logging.getLogger(__name__)
+
 
 class Command(BaseCommand):
 
