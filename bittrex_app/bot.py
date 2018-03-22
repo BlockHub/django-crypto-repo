@@ -64,25 +64,31 @@ class ObserverBot(AbstractObserverBot):
             )
             new_orderbook.save()
 
-            for order in book['result']['buy']:
-                orders.append(
-                    Order(
-                        buy=True,
-                        quantity=order['Quantity'],
-                        rate=order['Rate'],
-                        orderbook=new_orderbook,
-                    ),
-                )
+            try:
+                for order in book['result']['buy']:
+                    orders.append(
+                        Order(
+                            buy=True,
+                            quantity=order['Quantity'],
+                            rate=order['Rate'],
+                            orderbook=new_orderbook,
+                        ),
+                    )
+            except TypeError:
+                pass
 
-            for order in book['result']['sell']:
-                orders.append(
-                    Order(
-                        buy=False,
-                        quantity=order['Quantity'],
-                        rate=order['Rate'],
-                        orderbook=new_orderbook,
-                    ),
-                )
+            try:
+                for order in book['result']['sell']:
+                    orders.append(
+                        Order(
+                            buy=False,
+                            quantity=order['Quantity'],
+                            rate=order['Rate'],
+                            orderbook=new_orderbook,
+                        ),
+                    )
+            except TypeError:
+                pass
 
         return orders
 
