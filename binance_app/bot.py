@@ -163,8 +163,3 @@ class ObserverBot(AbstractObserverBot):
             else:
                 # in general a refresh run takes 15 s.
                 time.sleep(self.setting['REFRESH_RATE'] - (datetime.datetime.now().second - start_time.second))
-
-
-
-
-
