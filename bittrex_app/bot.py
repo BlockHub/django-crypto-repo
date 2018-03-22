@@ -95,18 +95,21 @@ class ObserverBot(AbstractObserverBot):
     def cast_tickers(self, tks, time):
         casted_tks = []
         for tk in tks:
-            if not tk['success']:
-                logger.error(tk['message'])
-                continue
-            casted_tks.append(
-                Ticker(
-                    bid=tk['result']['Bid'],
-                    ask=tk['result']['Ask'],
-                    last=tk['result']['Last'],
-                    time=time,
-                    market=tk['result']['market']
+            try:
+                if not tk['success']:
+                    logger.error(tk['message'])
+                    continue
+                casted_tks.append(
+                    Ticker(
+                        bid=tk['result']['Bid'],
+                        ask=tk['result']['Ask'],
+                        last=tk['result']['Last'],
+                        time=time,
+                        market=tk['result']['market']
+                    )
                 )
-            )
+            except TypeError:
+                pass
         return casted_tks
 
     def refresh_markets_orderbooks(self, time):
