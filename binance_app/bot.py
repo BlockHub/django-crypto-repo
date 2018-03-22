@@ -75,7 +75,6 @@ class ObserverBot(AbstractObserverBot):
                 continue
             # sometimes a retried api call still failed
             if not orderbook['bids'] or not orderbook['market']:
-                logger.error(orderbook)
                 continue
 
             ob = OrderBook.objects.create(
