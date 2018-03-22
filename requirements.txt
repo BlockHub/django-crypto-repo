@@ -57,3 +57,4 @@ urllib3==1.22
 websocket-client==0.40.0
 yarl==1.1.1
 zope.interface==4.4.3
+git+https://github.com/danpaquin/gdax-python@master
