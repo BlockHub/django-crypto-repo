@@ -88,6 +88,8 @@ def deploy_django():
             upload_template('files/consumer_env',
                             destination='.env')
             run('python manage.py migrate')
+            run('python manage.py migrate locks')
+
             upload_template(
                 filename='files/consumer_env',
                 destination='.env')
@@ -98,14 +100,17 @@ def deploy_django():
                 password=config.SUPERUSER_PASSWORD
             ))
 
+
 def update_django():
     with cd(config.CODE_DIR + '/' + config.GIT_REPO_NAME):
         with settings(prompts={
             "Type 'yes' to continue, or 'no' to cancel: ": 'yes'
         }):
+            run('pip3 install -r ' + 'requirements.txt --no-cache-dir --upgrade')
             upload_template('files/consumer_env',
                             destination='.env')
             run('python manage.py migrate')
+            run('python manage.py migrate locks')
             run('python manage.py collectstatic')
             run(
                 """echo "from django.contrib.auth.models import User; User.objects.filter(email='{email}').delete(); User.objects.create_superuser(username='{user}', email='{email}', password='{password}')" | python manage.py shell""".format(
@@ -113,6 +118,7 @@ def update_django():
                     user=config.SUPERUSER_NAME,
                     password=config.SUPERUSER_PASSWORD
                 ))
+            run("""python manage.py unlock all""")
 
 
 def setup_gunicorn():
@@ -153,6 +159,7 @@ def chmod_commands():
 
 
 def setup_supervisor():
+    stop_supervisor()
     directory = os.fsencode('files/supervisor/')
     for filename in os.listdir(directory):
         if filename.endswith(b'.conf'):
@@ -162,6 +169,14 @@ def setup_supervisor():
                 destination=destination,
                 use_sudo=True
             )
+    start_supervisor()
+
+
+def stop_supervisor():
+    sudo('supervisorctl stop all')
+
+
+def start_supervisor():
     sudo('supervisorctl reread')
     sudo('supervisorctl update')
     sudo('supervisorctl restart all')
@@ -211,9 +226,14 @@ def initial_deploy():
                 setup_logfiles()
                 setup_gunicorn()
 
-    setup_supervisor()
     setup_nginx()
+    setup_supervisor()
     cleanup()
+
+def clear():
+    with cd(config.CODE_DIR + '/' + config.GIT_REPO_NAME):
+        with virtualenv():
+            run('python manage.py flush')
 
 
 def update():
@@ -221,9 +241,9 @@ def update():
     with cd(config.CODE_DIR):
         git()
         with virtualenv():
+            stop_supervisor()
             update_django()
             update_gunicorn()
-            setup_supervisor()
             setup_supervisor()
             cleanup()
 
